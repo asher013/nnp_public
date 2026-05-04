@@ -42,3 +42,59 @@ __global__ void delta1_kernel(float *delta1, float *delta2, float *W2 , float *h
         delta1[j] = err * drelu(h1a[j]);
     }
 }
+
+// ----------------FORWARD PASS KERNELS--------------------
+
+// Each thread computes one neuron's pre-activation and activation value.
+
+__global__ void forward_layer_relu(
+    float *input,    // input vector
+    float *W,        // input matrix
+    float *b,        // (out_size,)
+    float *pre,      
+    float *act,      
+    int in_size,
+    int out_size)
+{
+    int row = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (row >= out_size) return; // Guards against out-of-bounds indexing
+
+    float sum = b[row];
+    for (int i = 0; i < in_size; i++) {
+        sum += input[i] * W[i * out_size + row];
+    }
+
+    pre[row] = sum;
+    act[row] = sum > 0.0f ? sum : 0.0f;   // This will store the output values after the ReLu activation function is applied
+}
+
+// linear activation kernel for final layer
+
+__global__ void forward_layer_linear(float *input, float *W, float *b, float *out, int in_size, int out_size) {
+    int row = blockIdx.x * blockDim.x + threadIdx.x;
+    
+    if (row >= out_size) return;
+
+    float sum = b[row];
+    for (int i = 0; i < in_size; i++) {
+        sum += input[i] * W[i * out_size + row];
+    }
+
+    out[row] = sum;
+}
+
+// --------------- WEIGHT UPDATE KERNELS ---------------------
+__global__ void weight_updates(float *W, float *input, float *delta, int in_size, int out_size) {
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (idx >= in_size * out_size) return;
+
+    // Recover 2d indices
+
+    int j = idx / out_size;
+    int k = idx % out_size;
+
+    W[idx] += LR * delta[k] * input[j];
+
+}
