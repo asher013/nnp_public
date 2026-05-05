@@ -28,7 +28,7 @@ __global__ void delta2_kernel(float *delta2, float *delta3, float *W3 , float *h
     if (j < H2) {
         for (int k = 0; k < classes; k++)
             err += delta3[k] * W3[j * classes + k];
-        delta2[j] = err * drelu(h2a[j]);
+        delta2[j] = err * (h2a[j] > 0 ? 1 : 0);
     }
 } 
 
@@ -39,7 +39,7 @@ __global__ void delta1_kernel(float *delta1, float *delta2, float *W2 , float *h
     if (j < H1) {
         for (int k = 0; k < H2; k++)
             err += delta2[k] * W2[j * H2 + k];
-        delta1[j] = err * drelu(h1a[j]);
+        delta1[j] = err * (h1a[j] > 0 ? 1 : 0);
     }
 }
 
