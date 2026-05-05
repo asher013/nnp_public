@@ -116,23 +116,6 @@ void train_model(MODEL* model){
             forward_layer_relu<<<(H1 + threads - 1)/threads, threads>>>(d_train_data, d_W1, d_b1, d_h1, d_h1a, SIZE, H1);
             forward_layer_relu<<<(H2 + threads - 1)/threads, threads>>>(d_h1a, d_W2, d_b2, d_h2, d_h2a, H1, H2);
             forward_layer_linear<<<(CLASSES + threads - 1)/threads, threads>>>(d_h2a, d_W3, d_b3, d_out, H2, CLASSES);
-            /*for (int j=0;j<H1;j++){
-                h1[j]=model->b1[j];
-                for (int i=0;i<SIZE;i++) h1[j]+=train_data[n][i]*model->W1[i*H1+j];
-                h1a[j]=relu(h1[j]);
-            }
-            float h2[H2], h2a[H2];
-            for (int j=0;j<H2;j++){
-                h2[j]=model->b2[j];
-                for (int i=0;i<H1;i++) h2[j]+=h1a[i]*model->W2[i*H2+j];
-                h2a[j]=relu(h2[j]);
-            }
-            float out[CLASSES], outa[CLASSES];
-            for (int k=0;k<CLASSES;k++){
-                out[k]=model->b3[k];
-                for (int j=0;j<H2;j++) out[k]+=h2a[j]*model->W3[j*CLASSES+k];
-            }
-                */
             float out[CLASSES], outa[CLASSES];
             cudaMemcpy(out, d_out, CLASSES * sizeof(float), cudaMemcpyDeviceToHost);
             softmax(out,outa,CLASSES);
@@ -177,23 +160,6 @@ void train_model(MODEL* model){
             cudaMemcpy(d_b2, model->b2, H2 * sizeof(float),      cudaMemcpyHostToDevice);
             cudaMemcpy(d_b3, model->b3, CLASSES * sizeof(float), cudaMemcpyHostToDevice);
 
-/*
-            // ---------- Update ----------
-            for (int j=0;j<H2;j++)
-                for (int k=0;k<CLASSES;k++)
-                    model->W3[j*CLASSES+k]+=LR*delta3[k]*h2a[j];
-            
-
-            for (int j=0;j<H1;j++)
-                for (int k=0;k<H2;k++)
-                    model->W2[j*H2+k]+=LR*delta2[k]*h1a[j];
-            for (int k=0;k<H2;k++) model->b2[k]+=LR*delta2[k];
-
-            for (int i=0;i<SIZE;i++)
-                for (int j=0;j<H1;j++)
-                    model->W1[i*H1+j]+=LR*delta1[j]*train_data[n][i];
-            for (int j=0;j<H1;j++) model->b1[j]+=LR*delta1[j];
-            */
         }
         printf("Epoch %d, Loss=%.4f\n", epoch, loss/NUM_TRAIN);
     }
