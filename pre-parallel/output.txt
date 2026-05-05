@@ -1,0 +1,15 @@
+Script started on Tue May  5 14:11:34 2026
+^[]0;asherm@:~/nnp_public/pre-parallel^G^[[?1034h[asherm@r2v01 pre-parallel]$ srun main^M
+Usage: nnp [train|predict]^M
+        Note: predict requires a previously trained model in the directory named model.bin^M
+^[]0;asherm@:~/nnp_public/pre-parallel^G[asherm@r2v01 pre-parallel]$ srun nnp train^M
+Epoch 0, Loss=0.2915^M
+Epoch 1, Loss=0.1241^M
+Epoch 2, Loss=0.0919^M
+Epoch 3, Loss=0.0738^M
+Epoch 4, Loss=0.0602^M
+Trained model in 51 seconds^M
+^[]0;asherm@:~/nnp_public/pre-parallel^G[asherm@r2v01 pre-parallel]$ exit^M
+exit^M
+Script done on Tue May  5 14:14:12 2026
+
